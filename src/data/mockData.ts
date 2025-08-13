@@ -1,6 +1,5 @@
 import type { Driver, ApprovalRequest } from "../types/dashboard";
 import type { DriverProfile, Review, TripHistory } from "../types/driver";
-import type { ApprovalRequestDetail } from "../types/approval";
 
 export const mockDrivers: Driver[] = [
   {
@@ -96,64 +95,64 @@ export const mockApprovalRequests: ApprovalRequest[] = [
   },
 ];
 
-export const mockApprovalRequestDetail: ApprovalRequestDetail = {
-  id: "1",
-  name: "Nesredin Haji",
-  phone: "(1 203) 3459",
-  email: "nesredin@gmail.com",
-  address: "372, Impervious Ave, New western corner",
-  city: "New York",
-  country: "United States",
-  serviceType: "XL Van",
-  documents: {
-    passport: {
-      front: {
-        name: "Front.pdf",
-        type: "PDF",
-        size: "2 MB",
-        uploadDate: "2022",
-        status: "approved",
-      },
-      back: {
-        name: "Back.zip",
-        type: "ZIP",
-        size: "2 MB",
-        uploadDate: "2022",
-        status: "rejected",
-      },
-    },
-    drivingLicense: {
-      front: {
-        name: "Front.pdf",
-        type: "PDF",
-        size: "1 MB",
-        uploadDate: "2022",
-        status: "approved",
-      },
-      back: {
-        name: "Back.zip",
-        type: "ZIP",
-        size: "1 MB",
-        uploadDate: "2022",
-        status: "rejected",
-      },
-    },
-    vehicleRegistration: {
-      name: "Vehicle Registration.pdf",
-      type: "PDF",
-      size: "2 MB",
-      uploadDate: "2022",
-      status: "approved",
-    },
-    vehicleInsurance: {
-      name: "Vehicle Insurance.pdf",
-      type: "PDF",
-      size: "2 MB",
-      uploadDate: "2022",
-      status: "rejected",
-    },
-  },
-};
+// export const mockApprovalRequestDetail: ApprovalRequestDetail = {
+//   id: "1",
+//   name: "Nesredin Haji",
+//   phone: "(1 203) 3459",
+//   email: "nesredin@gmail.com",
+//   address: "372, Impervious Ave, New western corner",
+//   city: "New York",
+//   country: "United States",
+//   serviceType: "XL Van",
+//   documents: {
+//     passport: {
+//       front: {
+//         name: "Front.pdf",
+//         type: "PDF",
+//         size: "2 MB",
+//         uploadDate: "2022",
+//         status: "approved",
+//       },
+//       back: {
+//         name: "Back.zip",
+//         type: "ZIP",
+//         size: "2 MB",
+//         uploadDate: "2022",
+//         status: "rejected",
+//       },
+//     },
+//     drivingLicense: {
+//       front: {
+//         name: "Front.pdf",
+//         type: "PDF",
+//         size: "1 MB",
+//         uploadDate: "2022",
+//         status: "approved",
+//       },
+//       back: {
+//         name: "Back.zip",
+//         type: "ZIP",
+//         size: "1 MB",
+//         uploadDate: "2022",
+//         status: "rejected",
+//       },
+//     },
+//     vehicleRegistration: {
+//       name: "Vehicle Registration.pdf",
+//       type: "PDF",
+//       size: "2 MB",
+//       uploadDate: "2022",
+//       status: "approved",
+//     },
+//     vehicleInsurance: {
+//       name: "Vehicle Insurance.pdf",
+//       type: "PDF",
+//       size: "2 MB",
+//       uploadDate: "2022",
+//       status: "rejected",
+//     },
+//   },
+// };
 
 export const mockDriverProfile: DriverProfile = {
   id: "1",

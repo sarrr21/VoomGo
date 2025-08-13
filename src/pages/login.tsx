@@ -1,32 +1,43 @@
-"use client";
-
 import type React from "react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import type { ApiError } from "../services/http";
 import type { LoginFormData, LoginPageProps } from "../types/login";
 
 export default function LoginPage({
   onLogin,
   onForgotPassword,
 }: LoginPageProps) {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState<LoginFormData>({
-    email: "helloworld@gmail.com",
+    email: "",
     password: "",
     rememberMe: false,
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (onLogin) {
-      setIsLoading(true);
-      try {
+    setIsLoading(true);
+    try {
+      setErrorMessage(null);
+      if (onLogin) {
         await onLogin(formData);
-      } catch (error) {
-        console.error("Login failed:", error);
-      } finally {
-        setIsLoading(false);
+      } else {
+        await login({ email: formData.email, password: formData.password });
       }
+      navigate("/", { replace: true });
+    } catch (error) {
+      const err = error as ApiError;
+      const data = err.response?.data as { message?: string } | undefined;
+      const msg = data?.message || "Login failed";
+      setErrorMessage(msg);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -61,9 +72,14 @@ export default function LoginPage({
               </h1>
             </div>
 
-            {/* Login Form */}
+            
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Email Field */}
+              {errorMessage && (
+                <div className="text-sm text-red-600" role="alert">
+                  {errorMessage}
+                </div>
+              )}
+
               <div>
                 <label
                   htmlFor="email"
@@ -81,7 +97,6 @@ export default function LoginPage({
                     placeholder="Enter your email"
                     required
                   />
-                  {/* Email verified checkmark */}
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                     <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
                       <svg
@@ -102,7 +117,7 @@ export default function LoginPage({
                 </div>
               </div>
 
-              {/* Password Field */}
+
               <div>
                 <label
                   htmlFor="password"
@@ -122,7 +137,7 @@ export default function LoginPage({
                     placeholder="Enter your password"
                     required
                   />
-                  {/* Password toggle button */}
+
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
@@ -167,7 +182,7 @@ export default function LoginPage({
                 </div>
               </div>
 
-              {/* Remember Me & Forgot Password */}
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="relative">
@@ -223,7 +238,7 @@ export default function LoginPage({
                 </button>
               </div>
 
-              {/* Login Button */}
+             
               <button
                 type="submit"
                 disabled={isLoading}

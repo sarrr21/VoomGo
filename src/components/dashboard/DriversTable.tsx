@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../../ui/Button";
@@ -13,51 +11,76 @@ import View from "../../assets/icons/view.svg"
 import { Pagination } from "../Pagination";
 import SuspensionPopup from "../driver/DriverSuspensionModal";
 import type { SuspensionUser, SuspensionFormData  } from "../../types/approval"
+import {   useSuspendUser } from "../../hooks/useUsers";
 
 
 interface DriversTableProps {
   drivers: Driver[];
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  activeTab?: (typeof DRIVER_TABS)[number];
+  onTabChange?: (tab: (typeof DRIVER_TABS)[number]) => void;
+  tabCounts?: Record<string, number>;
+  onExport?: (format: "excel" | "csv" | "pdf") => void;
 }
 
-export function DriversTable({ drivers }: DriversTableProps) {
+export function DriversTable({ drivers, searchValue, onSearchChange, currentPage, totalPages: totalPagesProp, onPageChange, activeTab: controlledTab, onTabChange, tabCounts, onExport }: DriversTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState(DRIVER_TABS[0]);
+  const [activeTab, setActiveTab] = useState<(typeof DRIVER_TABS)[number]>(DRIVER_TABS[0]);
   const [isOpen, setIsOpen] = useState(false)
   const [page, setPage] = useState(1);
-  const totalPages = 13;
+  const totalPages = totalPagesProp ?? 13;
+  const [exportOpen, setExportOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<SuspensionUser | null>(null);
 
-  const mockUser: SuspensionUser = {
-    id: "1",
-    name: "Esmail Abdulkadir",
-    email: "esmail@example.com",
-    avatar: "/placeholder.svg?height=32&width=32",
-  }
+  const suspendMutation = useSuspendUser();
+  // const activateMutation = useActivateUser();
 
-  const handleSubmit = (data: SuspensionFormData) => {
-    console.log("Suspension data:", data)
-    // Here you would typically send the data to your API
-    setIsOpen(false)
+  const handleSubmit = async (data: SuspensionFormData) => {
+    if (!selectedUser) return;
+    try {
+      const duration = data.suspensionType === "temporary" ? data.days ?? 0 : undefined;
+      await suspendMutation.mutateAsync({
+        userId: selectedUser.id,
+        reason: data.reason,
+        duration,
+        suspensionType: data.suspensionType,
+      });
+    } catch (err) {
+      console.error("Suspend failed", err);
+    } finally {
+      setIsOpen(false);
+      setSelectedUser(null);
+    }
   }
-  const filteredDrivers = drivers.filter(
-    (driver) =>
-      driver.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      driver.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      driver.phone.includes(searchTerm)
-  );
+  const effectiveSearch = searchValue ?? searchTerm;
+  const handleLocalSearch = (value: string) => {
+    if (onSearchChange) onSearchChange(value);
+    else setSearchTerm(value);
+  };
+
+  const effectiveTab = controlledTab ?? activeTab;
+  const handleTabChange = (tab: (typeof DRIVER_TABS)[number]) => {
+    if (onTabChange) onTabChange(tab);
+    else setActiveTab(tab);
+  };
 
  
 
   return (
-    <div className="p-8">
-      {/* Search and Filters */}
-      <div className="flex items-center bg-white justify-between mb-6 ">
-        <div className="relative max-w-md">
+    <div className="p-8 overflow-x-hidden">
+      <div className="flex items-center bg-white justify-between mb-6">
+        <div className="relative max-w-full md:max-w-md min-w-0">
           
         <input
         type="text"
-        value=""
+        value={effectiveSearch}
         placeholder="Search for id, name, phone number"
-        className="w-[500px] px-4 py-3 pr-12 text-gray-700 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
+        className="w-full md:w-[500px] px-4 py-3 pr-12 text-gray-700 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
+        onChange={(e) => handleLocalSearch(e.target.value)}
       />
       <button
         type="submit"
@@ -80,29 +103,56 @@ export function DriversTable({ drivers }: DriversTableProps) {
       </button>
         </div>
 
-        <Button variant="outline" size="sm">
-          <span><img src={Export} alt="export" className="w-6 h-6"/></span> Export
-        </Button>
+        <div className="relative">
+          <Button variant="outline" size="sm" onClick={() => setExportOpen((p) => !p)}>
+            <span><img src={Export} alt="export" className="w-6 h-6"/></span> Export
+          </Button>
+          {exportOpen && (
+            <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow z-10">
+              <button
+                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+                onClick={() => { if (onExport) onExport("excel"); setExportOpen(false); }}
+              >
+                Excel
+              </button>
+              <button
+                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+                onClick={() => { if (onExport) onExport("csv"); setExportOpen(false); }}
+              >
+                CSV
+              </button>
+              <button
+                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+                onClick={() => { if (onExport) onExport("pdf"); setExportOpen(false); }}
+              >
+                PDF
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Tabs */}
       <div className="flex justify-between border py-2 px-3 rounded-2xl border-[#D1D1D1] mb-6 ">
-        {DRIVER_TABS.map((tab) => (
+        {DRIVER_TABS.map((tab) => {
+          const base = tab.split(" (")[0];
+          const count = tabCounts?.[base];
+          const label = count !== undefined ? `${base} (${count})` : base;
+          return (
           <button
             key={tab}
-            onClick={() => setActiveTab(tab)}
+            onClick={() => handleTabChange(tab)}
             className={`py-2 px-3 rounded-xl  text-sm font-medium  transition-colors ${
-              activeTab === tab
+              effectiveTab === tab
                 ? "bg-[#D9EDFF] text-blue-600"
                 : ""
             }`}
           >
-            {tab}
+            {label}
           </button>
-        ))}
+          );
+        })}
       </div>
 
-      {/* Drivers Table */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -132,7 +182,7 @@ export function DriversTable({ drivers }: DriversTableProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredDrivers.map((driver) => (
+              {drivers.map((driver) => (
                 <tr key={driver.id} className="hover:bg-gray-50">
                   <td className="py-4 px-4">
                     <input type="checkbox" className="rounded" />
@@ -140,9 +190,9 @@ export function DriversTable({ drivers }: DriversTableProps) {
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-3">
                       <img
-                        src={driver.avatar || "/placeholder.svg"}
+                        src={"https://www.sublimio.com/wp-content/uploads/2023/04/Sublimio_Personal-branding-examples_Web.jpg"}
                         alt={driver.name}
-                        className="w-10 h-10 rounded-full"
+                        className="w-10 h-10 rounded-xl"
                       />
                       <div>
                         <div className="font-medium text-gray-900">
@@ -170,18 +220,31 @@ export function DriversTable({ drivers }: DriversTableProps) {
                   </td>
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-2">
-                    <Link to={`/drivers/${driver.id}`}>
+                      <Link to={`/drivers/${driver.id}`}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                        >
+                          <img src={View} alt="view" className="w-6 h-6"/>
+                        </Button>
+                      </Link>
                       <Button
                         variant="ghost"
                         size="sm"
-                        >
-                        <img src={View} alt="view" className="w-6 h-6"/>
-                      </Button>
-                      </Link>
-                        <Button variant="ghost" size="sm"
-                         onClick={() => setIsOpen(true)}>
+                        onClick={() => {
+                          const user: SuspensionUser = {
+                            id: driver.id,
+                            name: driver.name,
+                            email: driver.email,
+                            avatar: driver.avatar,
+                          };
+                          setSelectedUser(user);
+                          setIsOpen(true);
+                        }}
+                      >
                         <img src={Delete} alt="delete" className="w-6 h-6"/>
-                        </Button>
+                      </Button>
+                    
                     </div>
                   </td>
                 </tr>
@@ -194,16 +257,27 @@ export function DriversTable({ drivers }: DriversTableProps) {
       </div>
       <div>
       <Pagination
-        currentPage={page}
+        currentPage={currentPage ?? page}
         totalPages={totalPages}
-        onPageChange={(newPage) => setPage(newPage)}
+        onPageChange={(newPage) => {
+          if (onPageChange) onPageChange(newPage)
+          else setPage(newPage)
+        }}
       />
     </div>
 
-      {/* Suspension Modal */}
-      <SuspensionPopup
-        isOpen={isOpen} onClose={() => setIsOpen(false)} user={mockUser} onSubmit={handleSubmit}
-      />
+      
+      {selectedUser && (
+        <SuspensionPopup
+          isOpen={isOpen}
+          onClose={() => {
+            setIsOpen(false);
+            setSelectedUser(null);
+          }}
+          user={selectedUser}
+          onSubmit={handleSubmit}
+        />
+      )}
     </div>
   );
 }

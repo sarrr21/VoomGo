@@ -13,7 +13,7 @@ interface ProfileStatsProps {
 export function ProfileStats({ profile }: ProfileStatsProps) {
   return (
     <div className="bg-white p-6 rounded-lg mb-2">
-    <h1 className="font-medium text-xl mb-2">Esmail Abdulkadir</h1>
+    <h1 className="font-medium text-xl mb-2">{profile.name}</h1>
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8   ">
       
     <div className="bg-blue-600 text-white p-3 rounded-lg">
@@ -35,9 +35,7 @@ export function ProfileStats({ profile }: ProfileStatsProps) {
   </div>
 
   <div className="flex gap-2">
-    <div className="text-3xl font-bold">
-      291
-    </div>
+    <div className="text-3xl font-bold">{profile.totalTrips}</div>
     <div className="text-sm opacity-75 mt-2">+12%</div>
   </div>
 </div>
@@ -61,7 +59,7 @@ export function ProfileStats({ profile }: ProfileStatsProps) {
         <div className="text-2xl font-bold text-[#0E121B]">
          
         </div>
-        <div className="text-2xl text-[#0E121B]">Birr 120, 230</div>
+        <div className="text-2xl text-[#0E121B]">Birr {profile.totalEarning.toLocaleString()}</div>
         </div>
 
       </div>
@@ -85,7 +83,7 @@ export function ProfileStats({ profile }: ProfileStatsProps) {
         <div className="text-2xl font-bold text-[#0E121B]">
          
         </div>
-        <div className="text-2xl text-[#0E121B]">Birr 30, 400</div>
+        <div className="text-2xl text-[#0E121B]">Birr {profile.totalWithdrawal.toLocaleString()}</div>
         </div>
 
       </div>
@@ -108,7 +106,7 @@ export function ProfileStats({ profile }: ProfileStatsProps) {
         <div className="text-2xl font-bold text-[#0E121B]">
          
         </div>
-        <div className="text-2xl text-[#0E121B] flex gap-2">4.5 <span className="mt-2"><img src={Star} alt="star" className=" w-4 h-4"/></span></div>
+        <div className="text-2xl text-[#0E121B] flex gap-2">{profile.averageRating} <span className="mt-2"><img src={Star} alt="star" className=" w-4 h-4"/></span></div>
         </div>
 
       </div>

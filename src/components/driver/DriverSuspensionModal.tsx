@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import type { SuspensionPopupProps, SuspensionFormData  } from "../../types/approval"
 import Info from "../../assets/icons/warn.svg"
@@ -26,7 +24,7 @@ export default function SuspensionPopup({ isOpen, onClose, user, onSubmit }: Sus
   }
 
   const handleCancel = () => {
-    // Reset form
+    
     setSuspensionType("temporary")
     setDays("")
     setReason("")
@@ -39,27 +37,21 @@ export default function SuspensionPopup({ isOpen, onClose, user, onSubmit }: Sus
   return (
     <div className="fixed inset-0 bg-transparent bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-[613px] mx-4">
-        {/* Header */}
         <div className="p-6 pb-4">
           <h2 className="text-lg font-medium text-[#0E121B] mb-4">Create new Suspension Issue</h2>
-
-          {/* Info Banner */}
           <div className="bg-blue-50  rounded-lg p-3 mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              {/* Info Icon */}
               <img  src={Info} alt="info" className="w-6 h-6"/>
               <span className="text-[#006EFF] text-sm">You're Sending a suspension for:</span>
-              {/* User Avatar */}
               <img src={Profile} alt="profile" className="w-6 h-6" />
               <span className="text-[#006EFF] text-sm font-medium">{user.name}</span>
             </div>
-            {/* Close Button */}
             <button onClick={onClose} >
               <img src={Close} alt="close" className="w-4 h-4"/>
             </button>
           </div>
 
-          {/* Tabs */}
+          
           <div className="flex mb-6 bg-[#F5F7FA] justify-between rounded-xl ">
             <button
               onClick={() => setSuspensionType("temporary")}
@@ -83,9 +75,8 @@ export default function SuspensionPopup({ isOpen, onClose, user, onSubmit }: Sus
             </button>
           </div>
 
-          {/* Form Fields */}
           <div className="space-y-4">
-            {/* Temporary Suspension Fields */}
+
             {suspensionType === "temporary" && (
               <div className=" border border-gray-300 rounded-lg p-2">
                 <div className="flex items-center gap-2 bg-[#F5F7FA] p-2 w-[250px] rounded-lg">
@@ -104,7 +95,6 @@ export default function SuspensionPopup({ isOpen, onClose, user, onSubmit }: Sus
               </div>
             )}
 
-            {/* Reason Text Area */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">What makes you to suspend the user</label>
               <div className="relative">
@@ -122,7 +112,6 @@ export default function SuspensionPopup({ isOpen, onClose, user, onSubmit }: Sus
           </div>
         </div>
 
-        {/* Footer */}
         <div className="px-6 py-4 bg-gray-50 rounded-b-lg flex justify-end gap-3">
           <button
             onClick={handleCancel}

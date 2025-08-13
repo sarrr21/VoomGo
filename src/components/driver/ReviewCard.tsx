@@ -14,7 +14,6 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
 }) => {
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-8 mb-6 w-full">
-      {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-gray-800 font-medium">Reviews / Feedback</h2>
         <div className="flex items-center space-x-4 text-gray-500 text-sm">
@@ -27,10 +26,8 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
         </div>
       </div>
 
-      {/* Card */}
       <div className="bg-gray-50 rounded-lg p-4 flex flex-col">
         <div className="flex items-start">
-          {/* Avatar */}
           <img
             src={Avator2}
             alt="avatar"

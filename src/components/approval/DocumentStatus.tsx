@@ -5,7 +5,7 @@ interface DocumentStatusProps {
   label: string;
 }
 
-export function DocumentStatus({ document, label }: DocumentStatusProps) {
+export function DocumentStatus({ document }: DocumentStatusProps) {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "approved":

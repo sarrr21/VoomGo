@@ -1,12 +1,22 @@
+export type IconKey =
+  | "home"
+  | "store"
+  | "fileText"
+  | "lineChart"
+  | "headphones"
+  | "gift"
+  | "settings"
+  | "help";
+
 export const MENU_ITEMS = [
   {
     title: "Dashboard",
     href: "/",
-    icon: "📊",
+    iconKey: "home" as const,
   },
   {
     title: "User Management",
-    icon: "👥",
+    iconKey: "store" as const,
     children: [
       { title: "Riders", href: "/riders" },
       { title: "Drivers", href: "/drivers" },
@@ -14,7 +24,7 @@ export const MENU_ITEMS = [
   },
   {
     title: "Admin Management",
-    icon: "⚙️",
+    iconKey: "store" as const,
     children: [
       { title: "Admin", href: "/admin" },
       { title: "Support", href: "/support" },
@@ -24,32 +34,32 @@ export const MENU_ITEMS = [
   {
     title: "Pricing & Tariffs",
     href: "/pricing",
-    icon: "💰",
+    iconKey: "fileText" as const,
   },
   {
     title: "Financials",
     href: "/financials",
-    icon: "📈",
+    iconKey: "lineChart" as const,
   },
   {
     title: "Support & Disputes",
     href: "/support-disputes",
-    icon: "🎧",
+    iconKey: "headphones" as const,
   },
   {
     title: "Loyalty & Rewards",
     href: "/loyalty",
-    icon: "🎁",
+    iconKey: "gift" as const,
   },
   {
     title: "Account & Settings",
     href: "/settings",
-    icon: "⚙️",
+    iconKey: "settings" as const,
   },
   {
     title: "Help",
     href: "/help",
-    icon: "❓",
+    iconKey: "help" as const,
   },
 ] as const
 

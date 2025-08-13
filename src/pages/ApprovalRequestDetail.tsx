@@ -1,198 +1,71 @@
-"use client"
-
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import UserManagement from "../components/user-management"
 import type { UserManagementData, UserManagementActions } from "../types/user-management"
-
-// Mock data - replace with actual API calls
-const mockData: UserManagementData = {
-  approvalRequests: [
-    {
-      id: "1",
-      name: "Nesredin Haji",
-      avatar: "/abstract-profile.png",
-      timestamp: "04/17/23 at 8:25 PM",
-      category: "XL Van",
-    },
-    {
-      id: "2",
-      name: "Nesredin Haji",
-      avatar: "/abstract-profile.png",
-      timestamp: "04/17/23 at 8:25 PM",
-      category: "Boda Boda",
-    },
-    {
-      id: "3",
-      name: "Nesredin Haji",
-      avatar: "/abstract-profile.png",
-      timestamp: "04/17/23 at 8:25 PM",
-      category: "Economy",
-    },
-    {
-      id: "4",
-      name: "Nesredin Haji",
-      avatar: "/abstract-profile.png",
-      timestamp: "04/17/23 at 8:25 PM",
-      category: "XL Van",
-    },
-    {
-      id: "5",
-      name: "Nesredin Haji",
-      avatar: "/abstract-profile.png",
-      timestamp: "04/17/23 at 8:25 PM",
-      category: "Boda Boda",
-    },
-    {
-      id: "6",
-      name: "Nesredin Haji",
-      avatar: "/abstract-profile.png",
-      timestamp: "04/17/23 at 8:25 PM",
-      category: "Economy",
-    },
-    {
-      id: "7",
-      name: "Nesredin Haji",
-      avatar: "/abstract-profile.png",
-      timestamp: "04/17/23 at 8:25 PM",
-      category: "Delivery",
-    },
-    {
-      id: "8",
-      name: "Nesredin Haji",
-      avatar: "/abstract-profile.png",
-      timestamp: "04/17/23 at 8:25 PM",
-      category: "Delivery",
-    },
-  ],
-  selectedUser: {
-    id: "1",
-    name: "Nesredin Haji",
-    avatar: "/abstract-profile.png",
-    category: "XL Van",
-    timestamp: "04/17/23 at 8:25 PM",
-    phoneNumber: "+1 (203) 3458",
-    emailAddress: "nesrilbaba@gmail.com",
-    address: "312, Imperical Arc, New western corner",
-    city: "New York",
-    country: "United Stats",
-  },
-  documents: [
-    {
-      title: "Passport/National ID",
-      files: [
-        {
-          name: "Front.pdf",
-          type: "pdf",
-          size: "2 MB",
-          date: "2 Dec 2022",
-          approved: true,
-          declined: false,
-        },
-        {
-          name: "Back.zip",
-          type: "zip",
-          size: "2 MB",
-          date: "2 Dec 2022",
-          approved: true,
-          declined: false,
-        },
-      ],
-    },
-    {
-      title: "Driving License",
-      files: [
-        {
-          name: "Front.pdf",
-          type: "pdf",
-          size: "2 MB",
-          date: "2 Dec 2022",
-          approved: true,
-          declined: false,
-        },
-        {
-          name: "Back.zip",
-          type: "zip",
-          size: "2 MB",
-          date: "2 Dec 2022",
-          approved: true,
-          declined: false,
-        },
-      ],
-    },
-    {
-      title: "Vehicle Information",
-      files: [
-        {
-          name: "Vehicle Registration.pdf",
-          type: "pdf",
-          size: "2 MB",
-          date: "2 Dec 2022",
-          approved: true,
-          declined: false,
-        },
-        {
-          name: "Vehicle Insurance.pdf",
-          type: "pdf",
-          size: "2 MB",
-          date: "2 Dec 2022",
-          approved: true,
-          declined: false,
-        },
-      ],
-    },
-  ],
-}
+import { useParams } from "react-router-dom"
+import { usePendingDrivers, useApproveDriver, useRejectDriver, useVerifyDriverDocument } from "../hooks/usePendingDrivers"
+import { mapPendingDriverToContactDetails, mapPendingDriverToDocumentSections, mapPendingDriverToUMApprovalRequest } from "../utils/mappers"
 
 export default function ApprovalRequestDetail() {
-  const [data, setData] = useState<UserManagementData>(mockData)
+  const { id } = useParams();
+  const { data: pendingDrivers } = usePendingDrivers({ page: 1, limit: 50 });
+  const approveMutation = useApproveDriver();
+  const rejectMutation = useRejectDriver();
+  const verifyMutation = useVerifyDriverDocument();
+
+  const selected = useMemo(() => {
+    const list = pendingDrivers?.data?.drivers || [];
+    return list.find((d) => d._id === id) || list[0];
+  }, [pendingDrivers, id]);
+
+  const { sections, nameToId } = useMemo(() => {
+    if (!selected) return { sections: [], nameToId: {} };
+    return mapPendingDriverToDocumentSections(selected);
+  }, [selected]);
+
+  const [data, setData] = useState<UserManagementData>({
+    approvalRequests: (pendingDrivers?.data?.drivers || []).map(mapPendingDriverToUMApprovalRequest),
+    selectedUser: selected ? mapPendingDriverToContactDetails(selected) : null,
+    documents: sections,
+  })
+
+
+  
+  useMemo(() => {
+    const approvals = (pendingDrivers?.data?.drivers || []).map(mapPendingDriverToUMApprovalRequest)
+    const sel = selected ? mapPendingDriverToContactDetails(selected) : null
+    setData({ approvalRequests: approvals, selectedUser: sel, documents: sections })
+  }, [pendingDrivers, selected, sections])
 
   const actions: UserManagementActions = {
     onApprove: async (userId: string) => {
-      // TODO: Implement API call
-      console.log("Approving user:", userId)
-      // Example API call:
-      // await fetch(`/api/users/${userId}/approve`, { method: 'POST' });
+      await approveMutation.mutateAsync({
+        driverId: userId,
+        reason: ""
+      })
     },
 
     onDecline: async (userId: string) => {
-      // TODO: Implement API call
-      console.log("Declining user:", userId)
-      // Example API call:
-      // await fetch(`/api/users/${userId}/decline`, { method: 'POST' });
+      await rejectMutation.mutateAsync({ driverId: userId, reason: "Rejected by admin" })
     },
 
     onDelete: async (userId: string) => {
-      // TODO: Implement API call
-      console.log("Deleting user:", userId)
-      // Example API call:
-      // await fetch(`/api/users/${userId}`, { method: 'DELETE' });
+      console.log("Delete not implemented", userId)
     },
 
     onSelectUser: (userId: string) => {
-      const selectedUser = data.approvalRequests.find((user) => user.id === userId)
-      if (selectedUser) {
-        // In a real app, you'd fetch full user details from API
-        setData((prev) => ({
-          ...prev,
-          selectedUser: {
-            ...selectedUser,
-            phoneNumber: "+1 (203) 3458",
-            emailAddress: "nesrilbaba@gmail.com",
-            address: "312, Imperical Arc, New western corner",
-            city: "New York",
-            country: "United Stats",
-          },
-        }))
-      }
+      if (!pendingDrivers?.data?.drivers) return
+      const d = pendingDrivers.data.drivers.find((x) => x._id === userId)
+      if (!d) return
+      const mappedContact = mapPendingDriverToContactDetails(d)
+      const mappedDocs = mapPendingDriverToDocumentSections(d)
+      setData((prev) => ({ ...prev, selectedUser: mappedContact, documents: mappedDocs.sections }))
     },
 
     onDocumentAction: async (documentName: string, action: "approve" | "decline") => {
-      // TODO: Implement API call
-      console.log(`${action}ing document:`, documentName)
-      // Example API call:
-      // await fetch(`/api/documents/${documentName}/${action}`, { method: 'POST' });
-
-      // Update local state
+      if (!selected) return
+      const docId = nameToId[documentName]
+      if (!docId) return
+      await verifyMutation.mutateAsync({ driverId: selected._id, documentId: docId, status: action === "approve" ? "approved" : "rejected" })
       setData((prev) => ({
         ...prev,
         documents: prev.documents.map((section) => ({
@@ -201,8 +74,8 @@ export default function ApprovalRequestDetail() {
             file.name === documentName
               ? {
                   ...file,
-                  approved: action === "approve" ? true : file.approved,
-                  declined: action === "decline" ? true : file.declined,
+                  approved: action === "approve",
+                  declined: action === "decline",
                 }
               : file,
           ),

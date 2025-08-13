@@ -1,16 +1,10 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { ProfileStats } from "../components/driver/ProfileStats";
 import { VehicleDetailsCard } from "../components/driver/VehicleDetails";
 import { ProfileTabs } from "../components/driver/ProfileTabs";
 
-import {
-  mockDriverProfile,
-  mockReviews,
-  mockTripHistory,
-} from "../data/mockData";
+import { mockReviews, mockTripHistory } from "../data/mockData";
 import type {
   DriverProfile as DriverProfileType,
   Review,
@@ -18,6 +12,8 @@ import type {
 } from "../types/driver";
 import { ReviewCard } from "../components/driver/ReviewCard";
 import ProfileSidebar from "../components/driver/ProfileSidebar";
+import { useUserDetail } from "../hooks/useUserDetail";
+import { mapAdminUserToDriverProfile } from "../utils/mappers";
 
 export function DriverProfile() {
   const params = useParams();
@@ -27,12 +23,15 @@ export function DriverProfile() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [tripHistory, setTripHistory] = useState<TripHistory[]>([]);
 
+  const { data: userDetail } = useUserDetail(params.id || "");
+
   useEffect(() => {
-    // In a real app, these would be API calls using params.id
-    setDriverProfile(mockDriverProfile);
+    if (userDetail) {
+      setDriverProfile(mapAdminUserToDriverProfile(userDetail));
+    }
     setReviews(mockReviews);
     setTripHistory(mockTripHistory);
-  }, [params.id]);
+  }, [userDetail, params.id]);
 
   if (!driverProfile) {
     return <div className="p-6">Loading...</div>;

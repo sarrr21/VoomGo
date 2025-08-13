@@ -10,7 +10,7 @@ import LoginPage from "./pages/login";
 function AppContent() {
   const location = useLocation();
 
-  // Pages without layout
+
   const noLayoutPages = ["/login"];
 
   const isNoLayoutPage = noLayoutPages.includes(location.pathname);
@@ -27,6 +27,7 @@ function AppContent() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/drivers" element={<Dashboard />} />
           <Route path="/drivers/:id" element={<DriverProfile />} />
+          <Route path="/approval-requests" element={<ApprovalRequestDetail />} />
           <Route
             path="/approval-requests/:id"
             element={<ApprovalRequestDetail />}

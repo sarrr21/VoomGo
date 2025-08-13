@@ -1,8 +1,5 @@
-"use client";
-
 import { useState } from "react";
 import { Button } from "../../ui/Button";
-import { Badge } from "../../ui/Badge";
 import { PROFILE_TABS } from "../../constants";
 import type { ProfileTab, Review, TripHistory } from "../../types/driver";
 import Export from "../../assets/icons/export.svg";
@@ -16,13 +13,13 @@ interface ProfileTabsProps {
 }
 
 export function ProfileTabs({ reviews, tripHistory }: ProfileTabsProps) {
-  const [activeTab, setActiveTab] = useState<ProfileTab>("Rating & Feedback");
+  const [activeTab, setActiveTab] = useState<ProfileTab>("Trip History");
 
   const renderStarsComponent = () => {
     return (
       <span className="flex items-center text-sm">
         <span className=""><img src={Star} alt="star" className="w-4 h-4" /></span>
-        {/* <span className="ml-1 text-gray-700">{rating}</span> */}
+
       </span>
     );
   };
